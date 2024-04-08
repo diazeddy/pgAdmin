@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 interface SearchResult {
-  id: string;
+  id: number | string;
   name: string;
-  // Add more fields as needed
 }
 
 const Search: React.FC = () => {
@@ -14,7 +13,7 @@ const Search: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get<SearchResult[]>(`http://localhost:5000/api/search?query=${searchQuery}`);
+      const response = await axios.post<SearchResult[]>(`http://localhost:5000/api/search?query=${searchQuery}`);
       setSearchResults(response.data);
       setError('');
     } catch (error) {

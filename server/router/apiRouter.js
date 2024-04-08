@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken');
 //const { testConnection, connectToDatabase, getDBSchemaAndTables, getTableData } = require('../db');
 const { isAuthenticated } = require('../authMiddleware');
 
-const { Sequelize, QueryTypes } = require('sequelize');
-
+const { Sequelize, QueryTypes, DataTypes, Op } = require('sequelize');
+const csvStringify = require('csv-stringify');
 const apiRouter = express.Router()
 
 
@@ -31,6 +31,19 @@ const initDb = async () => {
 };
 
 initDb();
+
+const Product = sequelize.define('Product', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    // Other fields
+});  
 
 apiRouter.post('/api/test-connection', async (req, res) => {
     const { host, user, password, database } = req.body;
@@ -109,22 +122,17 @@ apiRouter.post('/api/run-sql', async (req, res) => {
     }
 });
 
-apiRouter.get('/api/search', async (req, res) => {
-    const { query } = req.query;
+apiRouter.post('/api/search', async (req, res) => {
+    const searchQuery = req.query.searchQuery;
   
     try {
-      const results = await YourModel.findAll({
+      const results = await Product.findAll({
         where: {
-          [Op.or]: {
-            // Define your search criteria here, e.g., for searching by name
-            name: {
-              [Op.like]: `%${query}%`
-            },
-            // Add more fields if needed
-          }
-        }
+            [Op.or]: [
+                { name: { [Op.like]: '%' + searchQuery + '%'} }
+            ],
+        },
       });
-  
       res.json(results);
     } catch (error) {
       console.error(error);
@@ -133,8 +141,53 @@ apiRouter.get('/api/search', async (req, res) => {
 });
 
 
+apiRouter.post('/api/export', async (req, res) => {
+    const { format } = req.query;
+
+    try {
+        let data;
+        if (format === 'csv') {
+            // Fetch data from the database
+            data = await Product.findAll();
+            // Convert data to CSV format
+            const csvData = await stringifyDataToCSV(data);
+            // Send CSV data as response
+            res.attachment('export.csv');
+            res.send(csvData);
+        } else if (format === 'sql') {
+            // Fetch data from the database
+            data = await Product.findAll();
+            // Convert data to SQL insert statements
+            const sqlData = await convertDataToSQL(data);
+            // Send SQL data as response
+            res.attachment('export.sql');
+            res.send(sqlData);
+        } else {
+            res.status(400).json({ message: 'Invalid export format' });
+        }
+    } catch (error) {
+        console.error('Failed to export data:', error);
+        res.status(500).json({ error: 'Failed to export data' });
+    }
+});
 
 
+// Helper function to convert data to CSV format
+const stringifyDataToCSV = async (data) => {
+    return new Promise((resolve, reject) => {
+        csvStringify(data, { header: true }, (err, output) => {
+            if (err) reject(err);
+            else resolve(output);
+        });
+    });
+};
+
+// Helper function to convert data to SQL format
+const convertDataToSQL = async (data) => {
+    // Assuming the model has 'id' and 'name' fields
+    const insertStatements = data.map(row => `INSERT INTO schema1 (id, name) VALUES (${row.id}, '${row.name}');`);
+    return insertStatements.join('\n');
+};
 
 // // Test Connection Endpoint
 // apiRouter.post('/api/test-connection', async (req, res) => {

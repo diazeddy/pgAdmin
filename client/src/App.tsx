@@ -17,7 +17,7 @@ import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { CRow, CCol, CSmartPagination } from '@coreui/react-pro';
 import Search from './Search';
-
+import ExportButton from './ExportButton';
 
 interface QueryResult {
   [key: string]: any;
@@ -153,6 +153,7 @@ const App: React.FC = () => {
               </div>
             )}
             <Search />
+            <ExportButton />
             <SimpleTreeView>
               {dbSchema.map(schema => (
                 <TreeItem itemId={schema.schema} label={schema.schema}>

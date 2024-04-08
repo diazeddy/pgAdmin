@@ -19,6 +19,10 @@ import { CRow, CCol, CSmartPagination } from '@coreui/react-pro';
 import Search from './Search';
 import ExportButton from './ExportButton';
 
+import { ThemeProvider } from './Theme/ThemeProvider';
+import ThemeToggle from './Theme/ThemeToggle';
+import ThemeAwareComponent from './Theme/ThemeAwareComponent';
+
 interface QueryResult {
   [key: string]: any;
 }
@@ -112,93 +116,97 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="App">
-      <button onClick={showModal}>Database Connection</button>
-      {show && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={closeModal}>&times;</span>
-            <input type="text" name="host" placeholder="Host" onChange={handleInputChange} />
-            <input type="text" name="user" placeholder="Username" onChange={handleInputChange} />
-            <input type="password" name="password" placeholder="Password" onChange={handleInputChange} />
-            <input type="text" name="database" placeholder="Database Name" onChange={handleInputChange} />
-            <div>
-              <button onClick={handleTestConnection}>Test Connection</button>
-              <button onClick={handleConnect}>Connect</button>
-            </div>
-            <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} />
-            <button onClick={handleRunQuery}>Run Query</button>
-            {error && <div>{error}</div>}
-            {queryResult.length > 0 && (
+    <ThemeProvider>
+      <div className="App">
+        <ThemeToggle />
+        <ThemeAwareComponent />
+        <button onClick={showModal}>Database Connection</button>
+        {show && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close-button" onClick={closeModal}>&times;</span>
+              <input type="text" name="host" placeholder="Host" onChange={handleInputChange} />
+              <input type="text" name="user" placeholder="Username" onChange={handleInputChange} />
+              <input type="password" name="password" placeholder="Password" onChange={handleInputChange} />
+              <input type="text" name="database" placeholder="Database Name" onChange={handleInputChange} />
               <div>
-                <h2>Query Result:</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      {Object.keys(queryResult[0]).map((key) => (
-                        <th key={key}>{key}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {queryResult.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {Object.values(row).map((value, valueIndex) => (
-                          <td key={valueIndex}>{value}</td>
+                <button onClick={handleTestConnection}>Test Connection</button>
+                <button onClick={handleConnect}>Connect</button>
+              </div>
+              <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} />
+              <button onClick={handleRunQuery}>Run Query</button>
+              {error && <div>{error}</div>}
+              {queryResult.length > 0 && (
+                <div>
+                  <h2>Query Result:</h2>
+                  <table>
+                    <thead>
+                      <tr>
+                        {Object.keys(queryResult[0]).map((key) => (
+                          <th key={key}>{key}</th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            <Search />
-            <ExportButton />
-            <SimpleTreeView>
-              {dbSchema.map(schema => (
-                <TreeItem itemId={schema.schema} label={schema.schema}>
-                  <TreeItem itemId={schema.table} label={schema.table} onClick={() => handleTableClick(schema.schema, schema.table)} />
-                </TreeItem>
-              ))}
-            </SimpleTreeView>
-            { (selectedTable.length > 0) && 
-              <div>
-                <h2>Table Data:</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedTable.filter((_, i) => i >= PAGE_LIMIT * (currentPage - 1) && i < PAGE_LIMIT * currentPage).map(row => (
-                      <tr key={row.id}>
-                        <td>{row.id}</td>
-                        <td>{row.name}</td>
+                    </thead>
+                    <tbody>
+                      {queryResult.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {Object.values(row).map((value, valueIndex) => (
+                            <td key={valueIndex}>{value}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <Search />
+              <ExportButton />
+              <SimpleTreeView>
+                {dbSchema.map(schema => (
+                  <TreeItem itemId={schema.schema} label={schema.schema}>
+                    <TreeItem itemId={schema.table} label={schema.table} onClick={() => handleTableClick(schema.schema, schema.table)} />
+                  </TreeItem>
+                ))}
+              </SimpleTreeView>
+              { (selectedTable.length > 0) && 
+                <div>
+                  <h2>Table Data:</h2>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <CRow>
-                  <CCol xs={6} md={6} xl={6}/>
-                  <CCol xs={6} md={6} xl={6}>
-                      <CSmartPagination
-                          align="end"
-                          activePage={currentPage}
-                          pages={totalPage}
-                          onActivePageChange={setCurrentPage}
-                          size="sm"
-                          limit={2}
-                      />
-                  </CCol>
-                </CRow>
-              </div>
-            }
+                    </thead>
+                    <tbody>
+                      {selectedTable.filter((_, i) => i >= PAGE_LIMIT * (currentPage - 1) && i < PAGE_LIMIT * currentPage).map(row => (
+                        <tr key={row.id}>
+                          <td>{row.id}</td>
+                          <td>{row.name}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <CRow>
+                    <CCol xs={6} md={6} xl={6}/>
+                    <CCol xs={6} md={6} xl={6}>
+                        <CSmartPagination
+                            align="end"
+                            activePage={currentPage}
+                            pages={totalPage}
+                            onActivePageChange={setCurrentPage}
+                            size="sm"
+                            limit={2}
+                        />
+                    </CCol>
+                  </CRow>
+                </div>
+              }
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </ThemeProvider>
   );
 }
 

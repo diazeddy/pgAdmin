@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 //const { testConnection, connectToDatabase, getDBSchemaAndTables, getTableData } = require('../db');
 const { isAuthenticated } = require('../authMiddleware');
 
-const { Sequelize } = require('sequelize');
+const { Sequelize, QueryTypes } = require('sequelize');
 
 const apiRouter = express.Router()
 
@@ -97,7 +97,40 @@ apiRouter.get('/api/schemas', async (req, res) => {
     res.json(schemasAndTables);
 });
 
+apiRouter.post('/api/run-sql', async (req, res) => {
+    const { sqlQuery } = req.body;
+  
+    try {
+      const result = await sequelize.query(sqlQuery, { type: QueryTypes.SELECT });
+      res.json({ success: true, result });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, error: 'Failed to execute SQL query' });
+    }
+});
 
+apiRouter.get('/api/search', async (req, res) => {
+    const { query } = req.query;
+  
+    try {
+      const results = await YourModel.findAll({
+        where: {
+          [Op.or]: {
+            // Define your search criteria here, e.g., for searching by name
+            name: {
+              [Op.like]: `%${query}%`
+            },
+            // Add more fields if needed
+          }
+        }
+      });
+  
+      res.json(results);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to perform search' });
+    }
+});
 
 
 

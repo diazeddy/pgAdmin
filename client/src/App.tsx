@@ -16,6 +16,12 @@ import { getToken } from './services/authService';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { CRow, CCol, CSmartPagination } from '@coreui/react-pro';
+import Search from './Search';
+
+
+interface QueryResult {
+  [key: string]: any;
+}
 
 interface DBSchema {
   schema: string;
@@ -41,7 +47,22 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(0);
 
+  const [sqlQuery, setSqlQuery] = useState<string>('');
+  const [queryResult, setQueryResult] = useState<QueryResult[]>([]);
+  const [error, setError] = useState<string>('');
+
   const PAGE_LIMIT = 5;
+
+  const handleRunQuery = async () => {
+    try {
+      const response = await axios.post<{ result: QueryResult[] }>('http://localhost:5000/api/run-sql', { sqlQuery });
+      setQueryResult(response.data.result);
+      setError('');
+    } catch (error) {
+      setError('Failed to execute SQL query');
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     setTotalPage(Math.ceil((selectedTable?.length ?? 0) / PAGE_LIMIT));
@@ -105,7 +126,33 @@ const App: React.FC = () => {
               <button onClick={handleTestConnection}>Test Connection</button>
               <button onClick={handleConnect}>Connect</button>
             </div>
-
+            <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} />
+            <button onClick={handleRunQuery}>Run Query</button>
+            {error && <div>{error}</div>}
+            {queryResult.length > 0 && (
+              <div>
+                <h2>Query Result:</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      {Object.keys(queryResult[0]).map((key) => (
+                        <th key={key}>{key}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {queryResult.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {Object.values(row).map((value, valueIndex) => (
+                          <td key={valueIndex}>{value}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <Search />
             <SimpleTreeView>
               {dbSchema.map(schema => (
                 <TreeItem itemId={schema.schema} label={schema.schema}>
@@ -145,17 +192,6 @@ const App: React.FC = () => {
                       />
                   </CCol>
                 </CRow>
-                {/* <div>
-                  <ul className="pagination">
-                  {Array.from({ length: Math.ceil(selectedTable.length / itemsPerPage) }, (_, index) => index).map(number => (
-                      <li key={number} className="page-item">
-                        <button onClick={() => paginate(number + 1)} className="page-link">
-                          {number + 1}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div> */}
               </div>
             }
           </div>

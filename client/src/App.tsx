@@ -19,9 +19,7 @@ import { CRow, CCol, CSmartPagination } from '@coreui/react-pro';
 import Search from './Search';
 import ExportButton from './ExportButton';
 
-import { ThemeProvider } from './Theme/ThemeProvider';
 import ThemeToggle from './Theme/ThemeToggle';
-import ThemeAwareComponent from './Theme/ThemeAwareComponent';
 
 interface QueryResult {
   [key: string]: any;
@@ -112,14 +110,14 @@ const App: React.FC = () => {
     const res = await axios.get(`http://localhost:5000/api/table/${schema}/${table}`);
     setSelectedTable(res.data);
   };
+  const [theme, toggleTheme] = useState('light');
 
-
+  console.log("@@@ test", theme);
 
   return (
-    <ThemeProvider>
-      <div className="App">
-        <ThemeToggle />
-        <ThemeAwareComponent />
+    <div className="App">
+      <ThemeToggle  theme={theme} toggleTheme={() => toggleTheme(theme === 'light' ? 'dark' : 'light')}/>
+      <div style={{ background: theme === 'light' ? '#fff' : '#333', color: theme === 'light' ? '#333' : '#fff' }}>
         <button onClick={showModal}>Database Connection</button>
         {show && (
           <div className="modal">
@@ -206,7 +204,7 @@ const App: React.FC = () => {
           </div>
         )}
       </div>
-    </ThemeProvider>
+    </div>
   );
 }
 

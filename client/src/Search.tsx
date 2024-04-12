@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import { DBSchema } from './App';
 interface SearchResult {
   id: number | string;
   name: string;
 }
 
-const Search: React.FC = () => {
+
+const Search: React.FC<DBSchema> = ({ schema, table }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string>('');
+  console.log("@@@@@schema", schema);
+  console.log("@@@@@table", table);
 
   const handleSearch = async () => {
     try {
-      const response = await axios.post<SearchResult[]>(`http://localhost:5000/api/search?query=${searchQuery}`);
+      /*
+
+      implement react code to get tablename and schemaname
+
+      */
+      const response = await axios.post<SearchResult[]>(`http://localhost:5000/api/search?query=${searchQuery}&schema=${schema}&table=${table}`);
       setSearchResults(response.data);
       setError('');
     } catch (error) {

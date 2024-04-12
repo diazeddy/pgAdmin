@@ -25,7 +25,7 @@ interface QueryResult {
   [key: string]: any;
 }
 
-interface DBSchema {
+export interface DBSchema {
   schema: string;
   table: string;
 }
@@ -157,11 +157,15 @@ const App: React.FC = () => {
                   </table>
                 </div>
               )}
-              <Search />
+              {/* <Search /> */}
               <ExportButton />
               <SimpleTreeView>
                 {dbSchema.map(schema => (
                   <TreeItem itemId={schema.schema} label={schema.schema}>
+                    <Search 
+                      schema={schema.schema}
+                      table={schema.table}
+                    />
                     <TreeItem itemId={schema.table} label={schema.table} onClick={() => handleTableClick(schema.schema, schema.table)} />
                   </TreeItem>
                 ))}

@@ -32,18 +32,18 @@ const initDb = async () => {
 
 initDb();
 
-const Product = sequelize.define('Product', {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    // Other fields
-});  
+// const Product = sequelize.define('Product', {
+//     id: {
+//       type: DataTypes.INTEGER,
+//       primaryKey: true,
+//       autoIncrement: true
+//     },
+//     name: {
+//       type: DataTypes.STRING,
+//       allowNull: false
+//     },
+//     // Other fields
+// });  
 
 apiRouter.post('/api/test-connection', async (req, res) => {
     const { host, user, password, database } = req.body;
@@ -123,17 +123,20 @@ apiRouter.post('/api/run-sql', async (req, res) => {
 });
 
 apiRouter.post('/api/search', async (req, res) => {
-    const searchQuery = req.query.searchQuery;
-  
+    const searchQuery = req.query.query;
+    console.log("@@@ req", req);
+    console.log("search query", req.query);
     try {
-      const results = await Product.findAll({
-        where: {
-            [Op.or]: [
-                { name: { [Op.like]: '%' + searchQuery + '%'} }
-            ],
-        },
-      });
-      res.json(results);
+    const result = await sequelize.query(`
+        SELECT * FROM ${req.query.schema}.${req.query.table}
+        WHERE name LIKE :mode
+    `, { 
+        replacements: { mode: "%" + searchQuery + "%" },
+        type: QueryTypes.SELECT
+    });
+    console.log("@@@@AAAAA",searchQuery);
+    console.log("@@@ result", result);
+    res.json(result);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Failed to perform search' });
@@ -141,35 +144,35 @@ apiRouter.post('/api/search', async (req, res) => {
 });
 
 
-apiRouter.post('/api/export', async (req, res) => {
-    const { format } = req.query;
+// apiRouter.post('/api/export', async (req, res) => {
+//     const { format } = req.query;
 
-    try {
-        let data;
-        if (format === 'csv') {
-            // Fetch data from the database
-            data = await Product.findAll();
-            // Convert data to CSV format
-            const csvData = await stringifyDataToCSV(data);
-            // Send CSV data as response
-            res.attachment('export.csv');
-            res.send(csvData);
-        } else if (format === 'sql') {
-            // Fetch data from the database
-            data = await Product.findAll();
-            // Convert data to SQL insert statements
-            const sqlData = await convertDataToSQL(data);
-            // Send SQL data as response
-            res.attachment('export.sql');
-            res.send(sqlData);
-        } else {
-            res.status(400).json({ message: 'Invalid export format' });
-        }
-    } catch (error) {
-        console.error('Failed to export data:', error);
-        res.status(500).json({ error: 'Failed to export data' });
-    }
-});
+//     try {
+//         let data;
+//         if (format === 'csv') {
+//             // Fetch data from the database
+//             data = await Product.findAll();
+//             // Convert data to CSV format
+//             const csvData = await stringifyDataToCSV(data);
+//             // Send CSV data as response
+//             res.attachment('export.csv');
+//             res.send(csvData);
+//         } else if (format === 'sql') {
+//             // Fetch data from the database
+//             data = await Product.findAll();
+//             // Convert data to SQL insert statements
+//             const sqlData = await convertDataToSQL(data);
+//             // Send SQL data as response
+//             res.attachment('export.sql');
+//             res.send(sqlData);
+//         } else {
+//             res.status(400).json({ message: 'Invalid export format' });
+//         }
+//     } catch (error) {
+//         console.error('Failed to export data:', error);
+//         res.status(500).json({ error: 'Failed to export data' });
+//     }
+// });
 
 
 // Helper function to convert data to CSV format

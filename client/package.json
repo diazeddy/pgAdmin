@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@coreui/coreui": "^5.0.0",
     "@coreui/react-pro": "^5.0.0",
     "@mui/x-tree-view": "^7.1.1",
     "@testing-library/jest-dom": "^5.17.0",

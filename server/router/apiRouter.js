@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { isAuthenticated } = require('../authMiddleware');
 
 const { Sequelize, QueryTypes, DataTypes, Op } = require('sequelize');
-const csvStringify = require('csv-stringify');
+const csv = require('csv-stringify');
 const apiRouter = express.Router()
 
 
@@ -124,7 +124,7 @@ apiRouter.post('/api/run-sql', async (req, res) => {
 
 apiRouter.post('/api/search', async (req, res) => {
     const searchQuery = req.query.query;
-    console.log("@@@ req", req);
+    // console.log("@@@ req", req);
     console.log("search query", req.query);
     try {
     const result = await sequelize.query(`
@@ -144,41 +144,45 @@ apiRouter.post('/api/search', async (req, res) => {
 });
 
 
-// apiRouter.post('/api/export', async (req, res) => {
-//     const { format } = req.query;
+apiRouter.post('/api/export', async (req, res) => {
+    const { format, schema, table } = req.query;
 
-//     try {
-//         let data;
-//         if (format === 'csv') {
-//             // Fetch data from the database
-//             data = await Product.findAll();
-//             // Convert data to CSV format
-//             const csvData = await stringifyDataToCSV(data);
-//             // Send CSV data as response
-//             res.attachment('export.csv');
-//             res.send(csvData);
-//         } else if (format === 'sql') {
-//             // Fetch data from the database
-//             data = await Product.findAll();
-//             // Convert data to SQL insert statements
-//             const sqlData = await convertDataToSQL(data);
-//             // Send SQL data as response
-//             res.attachment('export.sql');
-//             res.send(sqlData);
-//         } else {
-//             res.status(400).json({ message: 'Invalid export format' });
-//         }
-//     } catch (error) {
-//         console.error('Failed to export data:', error);
-//         res.status(500).json({ error: 'Failed to export data' });
-//     }
-// });
+    try {
+        let data = await sequelize.query(`
+        SELECT * FROM ${schema}.${table}
+        `); ;
+        if (format === 'csv') {
+            // Fetch data from the database
+            // data = await Product.findAll();
+             
+            // Convert data to CSV format
+            const csvData = await stringifyDataToCSV(data);
+            // Send CSV data as response
+            res.attachment('export.csv');
+            res.send(csvData);
+        } else if (format === 'sql') {
+            // Fetch data from the database
+            // data = await Product.findAll();
+            
+            // Convert data to SQL insert statements
+            const sqlData = await convertDataToSQL(data, schema);
+            // Send SQL data as response
+            res.attachment('export.sql');
+            res.send(sqlData);
+        } else {
+            res.status(400).json({ message: 'Invalid export format' });
+        }
+    } catch (error) {
+        console.error('Failed to export data:', error);
+        res.status(500).json({ error: 'Failed to export data' });
+    }
+});
 
 
 // Helper function to convert data to CSV format
 const stringifyDataToCSV = async (data) => {
     return new Promise((resolve, reject) => {
-        csvStringify(data, { header: true }, (err, output) => {
+        csv(data, { header: true }, (err, output) => {
             if (err) reject(err);
             else resolve(output);
         });
@@ -186,85 +190,10 @@ const stringifyDataToCSV = async (data) => {
 };
 
 // Helper function to convert data to SQL format
-const convertDataToSQL = async (data) => {
+const convertDataToSQL = async (data, schema) => {
     // Assuming the model has 'id' and 'name' fields
-    const insertStatements = data.map(row => `INSERT INTO schema1 (id, name) VALUES (${row.id}, '${row.name}');`);
+    const insertStatements = data.map(row => `INSERT INTO ${schema} (id, name) VALUES (${row.id}, '${row.name}');`);
     return insertStatements.join('\n');
 };
-
-// // Test Connection Endpoint
-// apiRouter.post('/api/test-connection', async (req, res) => {
-//     const { host, user, password, database } = req.body;
-//     const result = await testConnection(host, user, password, database);
-//     res.json({ message: result });
-//   });
-  
-// // Connect to Database Endpoint
-// apiRouter.post('/api/connect', async (req, res) => {
-//     const { host, user, password, database } = req.body;
-//     const result = await connectToDatabase(host, user, password, database);
-//     res.json({ message: result });
-// });
-
-// // Protected route
-// apiRouter.get('/api/dashboard', isAuthenticated, (req, res) => {
-//     // Your route logic here
-//     res.json({ message: 'Welcome to the dashboard!' });
-// });
-
-// // Protected route to test authentication
-// apiRouter.get('/api/test-auth', isAuthenticated, (req, res) => {
-//     res.json({ message: 'Authentication successful', user: req.user });
-// });
-
-// // Protected route to get DB schemas and tables
-// apiRouter.get('/api/db-info', isAuthenticated, async (req, res) => {
-//     try {
-//         const dbInfo = await getDBSchemaAndTables();
-//         res.json(dbInfo);
-//     } catch (error) {
-//         console.error('Error fetching DB schema and tables:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-
-// // Protected route to get the table data with pagination
-
-// apiRouter.get('/api/table-data/:tableName', isAuthenticated, async(req, res) => {
-//     try {
-//         const { tableName } = req.params;
-//         const { page } = req.query;
-//         const tableData = await getTableData(tableName, page);
-//         res.json(tableData);
-//     } catch (error) {
-//         console.error('Error fetching the table data:', error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-
-// // Protected route to run SQL query
-// apiRouter.post('/api/run-sql', isAuthenticated, async (req, res) => {
-//     try {
-//       const { sqlQuery } = req.body;
-//       const result = await runSQLQuery(sqlQuery);
-//       res.json(result);
-//     } catch (error) {
-//       console.error('Error running SQL query:', error);
-//       res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-
-// // Protected route to search data in table
-// apiRouter.get('/search/:tableName', isAuthenticated, async (req, res) => {
-//     try {
-//       const { tableName } = req.params;
-//       const { query } = req.query;
-//       const searchData = await searchData(tableName, query);
-//       res.json(searchData);
-//     } catch (error) {
-//       console.error('Error searching data:', error);
-//       res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
 
 module.exports = apiRouter;

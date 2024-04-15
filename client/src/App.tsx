@@ -15,7 +15,8 @@ import { getToken } from './services/authService';
 
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
-import { CRow, CCol, CSmartPagination } from '@coreui/react-pro';
+import { CRow, CCol, CSmartPagination, CContainer, CCard, CCardHeader, CCardBody } from '@coreui/react-pro';
+import { CPagination } from '@coreui/react-pro';
 import Search from './Search';
 import ExportButton from './ExportButton';
 
@@ -158,10 +159,14 @@ const App: React.FC = () => {
                 </div>
               )}
               {/* <Search /> */}
-              <ExportButton />
+              {/* <ExportButton /> */}
               <SimpleTreeView>
                 {dbSchema.map(schema => (
                   <TreeItem itemId={`${schema.schema}-${schema.table}`} label={schema.schema}>
+                    <ExportButton 
+                      schema={schema.schema}
+                      table={schema.table}
+                    />
                     <Search 
                       schema={schema.schema}
                       table={schema.table}
@@ -171,7 +176,7 @@ const App: React.FC = () => {
                 ))}
               </SimpleTreeView>
               { (selectedTable.length > 0) && 
-                <div>
+                <div className="table-wrapper">
                   <h2>Table Data:</h2>
                   <table>
                     <thead>
@@ -189,19 +194,14 @@ const App: React.FC = () => {
                       ))}
                     </tbody>
                   </table>
-                  <CRow>
-                    <CCol xs={6} md={6} xl={6}/>
-                    <CCol xs={6} md={6} xl={6}>
-                        <CSmartPagination
-                            align="end"
-                            activePage={currentPage}
-                            pages={totalPage}
-                            onActivePageChange={setCurrentPage}
-                            size="sm"
-                            limit={2}
-                        />
-                    </CCol>
-                  </CRow>
+                  <CSmartPagination
+                      align="end"
+                      activePage={currentPage}
+                      pages={totalPage}
+                      onActivePageChange={setCurrentPage}
+                      size="sm"
+                      className='pag-btn'
+                  />
                 </div>
               }
             </div>

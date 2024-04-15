@@ -161,7 +161,7 @@ const App: React.FC = () => {
               <ExportButton />
               <SimpleTreeView>
                 {dbSchema.map(schema => (
-                  <TreeItem itemId={schema.schema} label={schema.schema}>
+                  <TreeItem itemId={`${schema.schema}-${schema.table}`} label={schema.schema}>
                     <Search 
                       schema={schema.schema}
                       table={schema.table}

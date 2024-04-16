@@ -11,8 +11,6 @@ const Search: React.FC<DBSchema> = ({ schema, table }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string>('');
-  console.log("@@@@@schema", schema);
-  console.log("@@@@@table", table);
 
   const handleSearch = async () => {
     try {

@@ -1,27 +1,13 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { ClipLoader } from 'react-spinners';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  RouteProps,
-} from "react-router-dom";
-
 import axios from 'axios';
 import './App.css';
-import LoginPage from './LoginPage';
-import DashboardPage from './DashboardPage';
-import { getToken } from './services/authService';
-
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
-import { CRow, CCol, CSmartPagination, CContainer, CCard, CCardHeader, CCardBody } from '@coreui/react-pro';
-import { CPagination } from '@coreui/react-pro';
 import Search from './Search';
 import ExportButton from './ExportButton';
-
 import ThemeToggle from './Theme/ThemeToggle';
+import { Pagination } from '@mui/material';
 
 interface QueryResult {
   [key: string]: any;
@@ -81,6 +67,10 @@ const App: React.FC = () => {
     setCurrentPage(1);
   }, [selectedTable]);
 
+  const handleChangePage = (event: any, newPage: number ) => {
+    setCurrentPage(newPage);
+  }
+
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setDbCredentials({ ...dbCredentials, [name]: value });
@@ -100,7 +90,6 @@ const App: React.FC = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/connect', dbCredentials);
       alert(response.data.message);
-      console.log("DBdata", response.data.data)
       setDbSchema(response.data.data);
     } catch (error: any) {
       alert(error.response.data.message);
@@ -121,8 +110,6 @@ const App: React.FC = () => {
     setSelectedTable(res.data);
   };
   const [theme, toggleTheme] = useState('light');
-
-  console.log("@@@ test", theme);
 
   return (
     <div className="App">
@@ -204,13 +191,12 @@ const App: React.FC = () => {
                         ))}
                       </tbody>
                     </table>
-                    <CSmartPagination
-                        align="end"
-                        activePage={currentPage}
-                        pages={totalPage}
-                        onActivePageChange={setCurrentPage}
-                        size="sm"
-                        className='pag-btn'
+                    <Pagination 
+                      count={totalPage}
+                      page={currentPage}
+                      onChange={handleChangePage}
+                      size='small'
+                      className='pag-btn'
                     />
                   </div>
                 }

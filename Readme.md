@@ -15,6 +15,7 @@ Build a PostgreSQL DB explorer like pgAdmin
     - After confirming the query on the popup, user should be able to see the result in the table. (Also implement pagination)
 - Make "Search" input box in the modal where user can search data in the DB table.
 - Make "Export" button in the modal where user can export all the data in CSV or SQL format.
+- Display loading bar for the needed parts.
 - Implement light/dark theme.
 - Implement mobile responsiveness.
 

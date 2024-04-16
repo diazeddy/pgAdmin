@@ -48,17 +48,21 @@ const App: React.FC = () => {
   const [sqlQuery, setSqlQuery] = useState<string>('');
   const [queryResult, setQueryResult] = useState<QueryResult[]>([]);
   const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState(false);
 
   const PAGE_LIMIT = 5;
 
   const handleRunQuery = async () => {
+    setLoading(true);
     try {
       const response = await axios.post<{ result: QueryResult[] }>(`${process.env.REACT_APP_API_RUN_SQL}`, { sqlQuery });
       setQueryResult(response.data.result);
       setError('');
+      setLoading(false);
     } catch (error) {
       setError('Failed to execute SQL query');
       console.error(error);
+      setLoading(false);
     }
   };
 
@@ -106,8 +110,14 @@ const App: React.FC = () => {
   };
 
   const handleTableClick = async (schema: any, table: any) => {
-    const res = await axios.get(`${process.env.REACT_APP_API_TABLE_DATA}/${schema}/${table}`);
-    setSelectedTable(res.data);
+    setLoading(true);
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_TABLE_DATA}/${schema}/${table}`);
+      setSelectedTable(res.data);
+      setLoading(false);
+    } catch {
+      setLoading(false);
+    }
   };
   const [theme, toggleTheme] = useState('light');
 
@@ -130,6 +140,7 @@ const App: React.FC = () => {
               </div>
               <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} />
               <button onClick={handleRunQuery}>Run Query</button>
+              { loading && <LoadingBar /> }
               <Suspense fallback={<LoadingBar />}>
                 {error && <div>{error}</div>}
                 {queryResult.length > 0 && (

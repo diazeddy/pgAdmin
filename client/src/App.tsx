@@ -50,10 +50,10 @@ const App: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   const PAGE_LIMIT = 5;
-
+  console.log("@@@@process", process.env.REACT_APP_API_RUN_SQL);
   const handleRunQuery = async () => {
     try {
-      const response = await axios.post<{ result: QueryResult[] }>('http://localhost:5000/api/run-sql', { sqlQuery });
+      const response = await axios.post<{ result: QueryResult[] }>(`${process.env.REACT_APP_API_RUN_SQL}`, { sqlQuery });
       setQueryResult(response.data.result);
       setError('');
     } catch (error) {
@@ -78,7 +78,7 @@ const App: React.FC = () => {
 
   const handleTestConnection = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/test-connection', dbCredentials);
+      const response = await axios.post(`${process.env.REACT_APP_API_TEST_CONNECTION}`, dbCredentials);
       alert(response.data.message);
 
     } catch (error: any) {
@@ -88,7 +88,7 @@ const App: React.FC = () => {
 
   const handleConnect = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/connect', dbCredentials);
+      const response = await axios.post(`${process.env.REACT_APP_API_CONNECT}`, dbCredentials);
       alert(response.data.message);
       setDbSchema(response.data.data);
     } catch (error: any) {
@@ -106,7 +106,7 @@ const App: React.FC = () => {
   };
 
   const handleTableClick = async (schema: any, table: any) => {
-    const res = await axios.get(`http://localhost:5000/api/table/${schema}/${table}`);
+    const res = await axios.get(`${process.env.REACT_APP_API_TABLE_DATA}/${schema}/${table}`);
     setSelectedTable(res.data);
   };
   const [theme, toggleTheme] = useState('light');

@@ -8,7 +8,7 @@ const ExportButton: React.FC<DBSchema> = ({ schema, table }) => {
   const handleExport = async (format: string) => {
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:5000/api/export?format=${format}&schema=${schema}&table=${table}`);
+      const response = await axios.post(`${process.env.REACT_APP_API_EXPORT_DATA}?format=${format}&schema=${schema}&table=${table}`);
 
       // Create hidden link to download CSV
       const link = document.createElement('a');

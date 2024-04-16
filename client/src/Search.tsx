@@ -19,7 +19,7 @@ const Search: React.FC<DBSchema> = ({ schema, table }) => {
       implement react code to get tablename and schemaname
 
       */
-      const response = await axios.post<SearchResult[]>(`http://localhost:5000/api/search?query=${searchQuery}&schema=${schema}&table=${table}`);
+      const response = await axios.post<SearchResult[]>(`${process.env.REACT_APP_API_SEARCH}?query=${searchQuery}&schema=${schema}&table=${table}`);
       setSearchResults(response.data);
       setError('');
     } catch (error) {

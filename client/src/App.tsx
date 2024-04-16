@@ -50,7 +50,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   const PAGE_LIMIT = 5;
-  console.log("@@@@process", process.env.REACT_APP_API_RUN_SQL);
+  
   const handleRunQuery = async () => {
     try {
       const response = await axios.post<{ result: QueryResult[] }>(`${process.env.REACT_APP_API_RUN_SQL}`, { sqlQuery });

@@ -104,8 +104,7 @@ apiRouter.post('/api/run-sql', async (req, res) => {
 
 apiRouter.post('/api/search', async (req, res) => {
     const searchQuery = req.query.query;
-    // console.log("@@@ req", req);
-    console.log("search query", req.query);
+
     try {
     const result = await sequelize.query(`
         SELECT * FROM ${req.query.schema}.${req.query.table}
@@ -114,8 +113,7 @@ apiRouter.post('/api/search', async (req, res) => {
         replacements: { mode: "%" + searchQuery + "%" },
         type: QueryTypes.SELECT
     });
-    console.log("@@@@AAAAA",searchQuery);
-    console.log("@@@ result", result);
+
     res.json(result);
     } catch (error) {
       console.error(error);

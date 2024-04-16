@@ -178,7 +178,7 @@ tbody td {
   font-size: 0.875rem;
 }
 
-.pag-btn {
+.pagination-btn {
   display: flex;
   justify-content: end;
   margin-top: 1rem;

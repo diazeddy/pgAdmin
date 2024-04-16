@@ -50,7 +50,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   const PAGE_LIMIT = 5;
-  
+
   const handleRunQuery = async () => {
     try {
       const response = await axios.post<{ result: QueryResult[] }>(`${process.env.REACT_APP_API_RUN_SQL}`, { sqlQuery });
@@ -67,11 +67,11 @@ const App: React.FC = () => {
     setCurrentPage(1);
   }, [selectedTable]);
 
-  const handleChangePage = (event: any, newPage: number ) => {
+  const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number ) => {
     setCurrentPage(newPage);
   }
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setDbCredentials({ ...dbCredentials, [name]: value });
   };
@@ -144,8 +144,8 @@ const App: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {queryResult.map((row, rowIndex) => (
-                          <tr key={rowIndex}>
+                        {queryResult.map((row, id) => (
+                          <tr key={id}>
                             {Object.values(row).map((value, valueIndex) => (
                               <td key={valueIndex}>{value}</td>
                             ))}
@@ -196,7 +196,7 @@ const App: React.FC = () => {
                       page={currentPage}
                       onChange={handleChangePage}
                       size='small'
-                      className='pag-btn'
+                      className='pagination-btn'
                     />
                   </div>
                 }

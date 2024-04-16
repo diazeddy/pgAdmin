@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
+import { ClipLoader } from 'react-spinners';
 import {
   BrowserRouter as Router,
   Routes,
@@ -34,6 +35,14 @@ export interface DBSchema {
 interface TableProps {
   id: string;
   name: string;
+}
+
+const LoadingBar = () => {
+  return (
+    <div className='loading-bar'>
+      <ClipLoader size={50} color='primary' />
+    </div>
+  );
 }
 
 const App: React.FC = () => {
@@ -134,76 +143,78 @@ const App: React.FC = () => {
               </div>
               <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} />
               <button onClick={handleRunQuery}>Run Query</button>
-              {error && <div>{error}</div>}
-              {queryResult.length > 0 && (
-                <div>
-                  <h2>Query Result:</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        {Object.keys(queryResult[0]).map((key) => (
-                          <th key={key}>{key}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {queryResult.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                          {Object.values(row).map((value, valueIndex) => (
-                            <td key={valueIndex}>{value}</td>
+              <Suspense fallback={<LoadingBar />}>
+                {error && <div>{error}</div>}
+                {queryResult.length > 0 && (
+                  <div>
+                    <h2>Query Result:</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          {Object.keys(queryResult[0]).map((key) => (
+                            <th key={key}>{key}</th>
                           ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {/* <Search /> */}
-              {/* <ExportButton /> */}
-              <SimpleTreeView>
-                {dbSchema.map(schema => (
-                  <TreeItem itemId={`${schema.schema}-${schema.table}`} label={schema.schema}>
-                    <ExportButton 
-                      schema={schema.schema}
-                      table={schema.table}
-                    />
-                    <Search 
-                      schema={schema.schema}
-                      table={schema.table}
-                    />
-                    <TreeItem itemId={schema.table} label={schema.table} onClick={() => handleTableClick(schema.schema, schema.table)} />
-                  </TreeItem>
-                ))}
-              </SimpleTreeView>
-              { (selectedTable.length > 0) && 
-                <div className="table-wrapper">
-                  <h2>Table Data:</h2>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedTable.filter((_, i) => i >= PAGE_LIMIT * (currentPage - 1) && i < PAGE_LIMIT * currentPage).map(row => (
-                        <tr key={row.id}>
-                          <td>{row.id}</td>
-                          <td>{row.name}</td>
+                      </thead>
+                      <tbody>
+                        {queryResult.map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {Object.values(row).map((value, valueIndex) => (
+                              <td key={valueIndex}>{value}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {/* <Search /> */}
+                {/* <ExportButton /> */}
+                <SimpleTreeView>
+                  {dbSchema.map(schema => (
+                    <TreeItem itemId={`${schema.schema}-${schema.table}`} label={schema.schema}>
+                      <ExportButton 
+                        schema={schema.schema}
+                        table={schema.table}
+                      />
+                      <Search 
+                        schema={schema.schema}
+                        table={schema.table}
+                      />
+                      <TreeItem itemId={schema.table} label={schema.table} onClick={() => handleTableClick(schema.schema, schema.table)} />
+                    </TreeItem>
+                  ))}
+                </SimpleTreeView>
+                { (selectedTable.length > 0) && 
+                  <div className="table-wrapper">
+                    <h2>Table Data:</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Name</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <CSmartPagination
-                      align="end"
-                      activePage={currentPage}
-                      pages={totalPage}
-                      onActivePageChange={setCurrentPage}
-                      size="sm"
-                      className='pag-btn'
-                  />
-                </div>
-              }
+                      </thead>
+                      <tbody>
+                        {selectedTable.filter((_, i) => i >= PAGE_LIMIT * (currentPage - 1) && i < PAGE_LIMIT * currentPage).map(row => (
+                          <tr key={row.id}>
+                            <td>{row.id}</td>
+                            <td>{row.name}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <CSmartPagination
+                        align="end"
+                        activePage={currentPage}
+                        pages={totalPage}
+                        onActivePageChange={setCurrentPage}
+                        size="sm"
+                        className='pag-btn'
+                    />
+                  </div>
+                }
+              </Suspense>
             </div>
           </div>
         )}

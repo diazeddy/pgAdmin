@@ -1,22 +1,15 @@
 const express = require('express')
-const jwt = require('jsonwebtoken');
-//const { testConnection, connectToDatabase, getDBSchemaAndTables, getTableData } = require('../db');
-const { isAuthenticated } = require('../authMiddleware');
 
 const { Sequelize, QueryTypes, DataTypes, Op } = require('sequelize');
 const csv = require('csv-stringify');
 const apiRouter = express.Router()
 
-
-
 let sequelize;
-
 
 sequelize = new Sequelize('postgres', 'postgres', 'developer2020!A', {
     host: 'localhost',
     dialect: 'postgres'
 });
-
 
 // Initialize the sample schemas and tables in a function
 const initDb = async () => {
@@ -31,19 +24,6 @@ const initDb = async () => {
 };
 
 initDb();
-
-// const Product = sequelize.define('Product', {
-//     id: {
-//       type: DataTypes.INTEGER,
-//       primaryKey: true,
-//       autoIncrement: true
-//     },
-//     name: {
-//       type: DataTypes.STRING,
-//       allowNull: false
-//     },
-//     // Other fields
-// });  
 
 apiRouter.post('/api/test-connection', async (req, res) => {
     const { host, user, password, database } = req.body;
